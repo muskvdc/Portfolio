@@ -1,7 +1,5 @@
 # Marco.Dev Portfolio
 
-Open the **Marco-Dev-VSCode** folder directly in Visual Studio Code.
-
 ## Files
 - `index.html` — page structure/content
 - `css/style.css` — stylesheet

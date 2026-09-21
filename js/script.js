@@ -6,177 +6,411 @@ Web Designer & Front-End Developer
 /* =========================================================
 01. DOM ELEMENT REFERENCES
 ========================================================= */
-const hamburger = document.getElementById('hamburger');
-const navLinks = document.getElementById('navLinks');
+const hamburger = document.querySelector('.menu');
+const navLinks = document.querySelector('.navlinks');
+const year = document.getElementById('year');
+
 
 /* =========================================================
 02. MOBILE NAVIGATION
+Uses the existing HTML/CSS classes:
+.menu, .navlinks and .open
 ========================================================= */
 if (hamburger && navLinks) {
+
+    const closeMobileNav = () => {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('active');
+
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'Open navigation');
+    };
+
     hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Open navigation');
 
     hamburger.addEventListener('click', () => {
-        const isOpen = navLinks.classList.toggle('show');
+
+        const isOpen = navLinks.classList.toggle('open');
+
         hamburger.classList.toggle('active', isOpen);
-        hamburger.setAttribute('aria-expanded', String(isOpen));
+
+        hamburger.setAttribute(
+            'aria-expanded',
+            String(isOpen)
+        );
+
+        hamburger.setAttribute(
+            'aria-label',
+            isOpen ? 'Close navigation' : 'Open navigation'
+        );
     });
 
-navLinks.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('show');
-        hamburger.classList.remove('active');
-        hamburger.setAttribute('aria-expanded', 'false');
+    navLinks.querySelectorAll('a').forEach((link) => {
+
+        link.addEventListener('click', closeMobileNav);
+
     });
-});
+
+    window.addEventListener('resize', () => {
+
+        if (window.innerWidth > 720) {
+            closeMobileNav();
+        }
+
+    });
 }
 
+
 /* =========================================================
 03. PROJECT FILTERING
-========================================================= */
-/* =========================================================
-03. PROJECT FILTERING
-Main filters: All / Dev Projects / WordPress / Shopify.
-Dev subfilters appear ONLY while Dev Projects is active.
-========================================================= */
+Main filters:
+All / Dev Projects / WordPress / Shopify
 
-const mainFilters = document.querySelectorAll(".filter");
-const devSubfilters = document.querySelector(".subfilters");
-const devSubfilterButtons = document.querySelectorAll(".subfilter");
-const projectCards = document.querySelectorAll(".project");
+Dev subfilters appear only while Dev Projects is active.
+========================================================= */
+const mainFilters = document.querySelectorAll('.filter');
+const devSubfilters = document.querySelector('.subfilters');
+const devSubfilterButtons = document.querySelectorAll('.subfilter');
+const projectCards = document.querySelectorAll('.project');
+const projectCount = document.getElementById('projectCount');
 
-let activeMainFilter = "all";
-let activeDevSubfilter = "all";
+let activeMainFilter = 'all';
+let activeDevSubfilter = 'all';
+
 
 function renderProjects() {
+
+    let visibleCount = 0;
+
     projectCards.forEach((project) => {
+
         const category = project.dataset.cat;
         const subcategory = project.dataset.sub;
 
         let visible = false;
 
-        if (activeMainFilter === "all") {
+
+        if (activeMainFilter === 'all') {
+
             visible = true;
-        } else if (activeMainFilter === "dev") {
-        visible =
-        category === "dev" &&
-        (activeDevSubfilter === "all" ||
-        subcategory === activeDevSubfilter);
-    } else {
-    visible = category === activeMainFilter;
-}
 
-project.hidden = !visible;
-});
+        } else if (activeMainFilter === 'dev') {
 
-const count = document.getElementById("projectCount");
-if (count) {
-    const visibleCount = [...projectCards].filter((project) => !project.hidden).length;
-    count.textContent = `${visibleCount} project${visibleCount === 1 ? "" : "s"}`;
-}
-}
+            visible =
+                category === 'dev' &&
+                (
+                    activeDevSubfilter === 'all' ||
+                    subcategory === activeDevSubfilter
+                );
 
-mainFilters.forEach((button) => {
-    button.addEventListener("click", () => {
-        activeMainFilter = button.dataset.filter;
+        } else {
 
-        mainFilters.forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
+            visible = category === activeMainFilter;
 
-        if (devSubfilters) {
-            devSubfilters.hidden = activeMainFilter !== "dev";
         }
 
-    if (activeMainFilter === "dev") {
-        activeDevSubfilter = "all";
-        devSubfilterButtons.forEach((item) => item.classList.remove("active"));
-        const allDev = document.querySelector('.subfilter[data-sub="all"]');
-        if (allDev) allDev.classList.add("active");
+
+        project.hidden = !visible;
+
+
+        if (visible) {
+            visibleCount += 1;
+        }
+
+    });
+
+
+    if (projectCount) {
+
+        projectCount.textContent =
+            `${visibleCount} project${visibleCount === 1 ? '' : 's'}`;
+
     }
+}
 
-renderProjects();
-});
-});
 
-devSubfilterButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-        activeDevSubfilter = button.dataset.sub;
+mainFilters.forEach((button) => {
 
-        devSubfilterButtons.forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
+    button.addEventListener('click', () => {
 
-        // Keep the Dev Projects main filter active.
-        activeMainFilter = "dev";
+        activeMainFilter = button.dataset.filter;
+
+
         mainFilters.forEach((item) => {
-            item.classList.toggle("active", item.dataset.filter === "dev");
+
+            item.classList.toggle(
+                'active',
+                item === button
+            );
+
         });
 
-    renderProjects();
-});
+
+        if (devSubfilters) {
+
+            devSubfilters.hidden =
+                activeMainFilter !== 'dev';
+
+        }
+
+
+        if (activeMainFilter === 'dev') {
+
+            activeDevSubfilter = 'all';
+
+
+            devSubfilterButtons.forEach((item) => {
+
+                item.classList.toggle(
+                    'active',
+                    item.dataset.sub === 'all'
+                );
+
+            });
+
+        }
+
+
+        renderProjects();
+
+    });
+
 });
 
+
+devSubfilterButtons.forEach((button) => {
+
+    button.addEventListener('click', () => {
+
+        activeDevSubfilter = button.dataset.sub;
+
+        activeMainFilter = 'dev';
+
+
+        devSubfilterButtons.forEach((item) => {
+
+            item.classList.toggle(
+                'active',
+                item === button
+            );
+
+        });
+
+
+        mainFilters.forEach((item) => {
+
+            item.classList.toggle(
+                'active',
+                item.dataset.filter === 'dev'
+            );
+
+        });
+
+
+        if (devSubfilters) {
+            devSubfilters.hidden = false;
+        }
+
+
+        renderProjects();
+
+    });
+
+});
+
+
 renderProjects();
+
 
 /* =========================================================
 04. SCROLL REVEAL
+The current portfolio does not require reveal classes,
+but this keeps the script safe if .reveal elements
+are added later.
 ========================================================= */
 const revealItems = document.querySelectorAll('.reveal');
 
-if ('IntersectionObserver' in window) {
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-        });
-}, { threshold: 0.12 });
 
-revealItems.forEach((item) => revealObserver.observe(item));
-} else {
-revealItems.forEach((item) => item.classList.add('visible'));
+if (revealItems.length) {
+
+    if ('IntersectionObserver' in window) {
+
+        const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+
+                entries.forEach((entry) => {
+
+                    if (!entry.isIntersecting) return;
+
+                    entry.target.classList.add('visible');
+
+                    observer.unobserve(entry.target);
+
+                });
+
+            },
+            {
+                threshold: 0.12
+            }
+        );
+
+
+        revealItems.forEach((item) => {
+
+            revealObserver.observe(item);
+
+        });
+
+    } else {
+
+        revealItems.forEach((item) => {
+
+            item.classList.add('visible');
+
+        });
+
+    }
+
 }
+
 
 /* =========================================================
 05. SMOOTH INTERNAL NAVIGATION
+
+The existing CSS scroll-padding-top handles
+the sticky header.
 ========================================================= */
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
+
     link.addEventListener('click', (event) => {
+
         const targetId = link.getAttribute('href');
-        if (!targetId || targetId === '#') return;
+
+
+        if (!targetId || targetId === '#') {
+            return;
+        }
+
 
         const target = document.querySelector(targetId);
-        if (!target) return;
+
+
+        if (!target) {
+            return;
+        }
+
 
         event.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+
+        target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
     });
+
 });
+
 
 /* =========================================================
 06. ACTIVE NAVIGATION SECTION
+
+Uses the actual .navlinks class from the HTML.
 ========================================================= */
 const sections = document.querySelectorAll('section[id]');
-const sectionLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+const sectionLinks =
+    document.querySelectorAll('.navlinks a[href^="#"]');
 
-if ('IntersectionObserver' in window && sections.length && sectionLinks.length) {
-    const sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
 
-            sectionLinks.forEach((link) => {
-                link.classList.toggle(
-                'active',
-                link.getAttribute('href') === `#${entry.target.id}`
-                );
+if (
+    'IntersectionObserver' in window &&
+    sections.length &&
+    sectionLinks.length
+) {
+
+    const sectionObserver = new IntersectionObserver(
+        (entries) => {
+
+            entries.forEach((entry) => {
+
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+
+                sectionLinks.forEach((link) => {
+
+                    const isActive =
+                        link.getAttribute('href') ===
+                        `#${entry.target.id}`;
+
+
+                    link.classList.toggle(
+                        'active',
+                        isActive
+                    );
+
+
+                    if (isActive) {
+
+                        link.setAttribute(
+                            'aria-current',
+                            'page'
+                        );
+
+                    } else {
+
+                        link.removeAttribute(
+                            'aria-current'
+                        );
+
+                    }
+
+                });
+
             });
-    });
-}, { rootMargin: '-35% 0px -55% 0px' });
 
-sections.forEach((section) => sectionObserver.observe(section));
+        },
+        {
+            rootMargin: '-35% 0px -55% 0px'
+        }
+    );
+
+
+    sections.forEach((section) => {
+
+        sectionObserver.observe(section);
+
+    });
+
 }
 
+
 /* =========================================================
-07. REDUCED MOTION SUPPORT
+07. CURRENT YEAR
+Keeps the footer year automatically up to date.
 ========================================================= */
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.documentElement.classList.add('reduce-motion');
+if (year) {
+
+    year.textContent =
+        new Date().getFullYear();
+
+}
+
+
+/* =========================================================
+08. REDUCED MOTION SUPPORT
+========================================================= */
+if (
+    window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+    ).matches
+) {
+
+    document.documentElement.classList.add(
+        'reduce-motion'
+    );
+
 }

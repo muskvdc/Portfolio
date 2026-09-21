@@ -66,7 +66,7 @@ Web Designer & Front-End Developer
     width:min(var(--max),calc(100% - 40px));
     margin-inline:auto
 }.section{
-    padding:120px 0;
+    padding:60px 0;
     position:relative
 }.section-head{
     display:flex;
